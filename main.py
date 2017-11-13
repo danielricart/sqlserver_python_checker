@@ -1,5 +1,6 @@
 import pypyodbc
 import stackdriver
+import datadog_metrics
 __author__ = 'daniel.ricart'
 import sql_client
 import argparse
@@ -28,6 +29,8 @@ def get_arguments():
     parser.add_argument("--database", nargs="?", required=True)
     parser.add_argument("--metric_name", nargs="?", required=True)
     parser.add_argument("--stackdriver_api", nargs="?", required=True)
+    parser.add_argument("--datadog_apikey", nargs="?", required=False, default=None)
+    parser.add_argument("--datadog_appkey", nargs="?", required=False, default=None)
     parser.add_argument("query")
     arguments = parser.parse_args()
 
@@ -57,6 +60,13 @@ def main():
     except Exception as e:
         print("ERROR sending to stackdriver: %s" % e)
         sys.exit(errno.EACCES)
+
+    if args.datadog_apikey:
+        try:
+            datadog_metrics.submit_custom_metric(args.metric_name, metric_value, args.datadog_apikey, args.datadog_appkey)
+        except Exception as e:
+            print("ERROR sending to datadog: %s" % e)
+            sys.exit(errno.EACCES)
 
 
 if __name__ == '__main__':
