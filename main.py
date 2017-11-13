@@ -28,7 +28,7 @@ def get_arguments():
     parser.add_argument("--password", nargs="?", required=True)
     parser.add_argument("--database", nargs="?", required=True)
     parser.add_argument("--metric_name", nargs="?", required=True)
-    parser.add_argument("--stackdriver_api", nargs="?", required=True)
+    parser.add_argument("--stackdriver_api", nargs="?", required=False, default=None)
     parser.add_argument("--datadog_apikey", nargs="?", required=False, default=None)
     parser.add_argument("--datadog_appkey", nargs="?", required=False, default=None)
     parser.add_argument("query")
@@ -55,11 +55,12 @@ def main():
     metric_value = sql.run_query(args.query)
     print(metric_value)
     # print(sql.run_write("update PERSON set name = 'Axel' where id = 1"))
-    try:
-        stackdriver.submit_custom_metric(args.metric_name, metric_value, args.stackdriver_api)
-    except Exception as e:
-        print("ERROR sending to stackdriver: %s" % e)
-        sys.exit(errno.EACCES)
+    if args.stackdriver_api:
+        try:
+            stackdriver.submit_custom_metric(args.metric_name, metric_value, args.stackdriver_api)
+        except Exception as e:
+            print("ERROR sending to stackdriver: %s" % e)
+            sys.exit(errno.EACCES)
 
     if args.datadog_apikey:
         try:
