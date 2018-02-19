@@ -1,3 +1,4 @@
+import json
 import pypyodbc
 import stackdriver
 import datadog_metrics
@@ -32,7 +33,9 @@ def get_arguments():
     parser.add_argument("--metric_name", nargs="?", required=True)
     parser.add_argument("--datadog_apikey", nargs="?", required=False, default=None)
     parser.add_argument("--datadog_appkey", nargs="?", required=False, default=None)
-    parser.add_argument("query")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--file', nargs="?")
+    group.add_argument("query", nargs="?")
     arguments = parser.parse_args()
 
     return arguments
@@ -44,6 +47,19 @@ def main():
 
     password = args.password
 
+    query_source = []
+    if "file" in args:
+        with open(args.file, encoding='utf-8') as json_file:
+            text = json_file.read()
+            query_source = json.load(text)
+    else:
+        query_source.append(
+            {
+                "namespace": args.metric_name,
+                "query": args.query
+            }
+        )
+        
     try:
         sql = sql_client.SqlClient.SqlClient(args.host, args.username, password, args.database)
     except (pypyodbc.DatabaseError, pypyodbc.DataError) as e:
@@ -53,7 +69,7 @@ def main():
         sys.exit(errno.EACCES)
 
     query_builder = QueryBuilder.QueryBuilder()
-    queries = query_builder.check(sample_query)
+    queries = query_builder.check(query_source)
     result = []
     for query in queries:
         single_value = "select count(*) from" in query["query"].lower()
