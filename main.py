@@ -1,6 +1,8 @@
 import pypyodbc
 import stackdriver
 import datadog_metrics
+from query_builder import QueryBuilder
+
 __author__ = 'daniel.ricart'
 import sql_client
 import argparse
@@ -52,6 +54,23 @@ def main():
         sys.exit(errno.EACCES)
 
     metric_value = sql.run_query(args.query)
+
+    query_builder = QueryBuilder.QueryBuilder()
+    queries = query_builder.check(sample_query)
+    result = []
+    for query in queries:
+        single_value = "select count(*) from" in query["query"].lower()
+        result_query = sql.run_query(query["query"], single_value=single_value)
+
+        if not single_value:
+            for k, v in result_query:
+                result.append({
+                    "namespace": (".".join([query["namespace"], k.replace(".", "_")])).lower(),
+                    "value": v
+                })
+        else:
+            result.append({"namespace": query["namespace"].lower(), "value": result_query})
+
     print(metric_value)
     # print(sql.run_write("update PERSON set name = 'Axel' where id = 1"))
     if args.stackdriver_api:
