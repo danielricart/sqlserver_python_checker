@@ -73,12 +73,6 @@ def main():
 
     print(metric_value)
     # print(sql.run_write("update PERSON set name = 'Axel' where id = 1"))
-    if args.stackdriver_api:
-        try:
-            stackdriver.submit_custom_metric(args.metric_name, metric_value, args.stackdriver_api)
-        except Exception as e:
-            print("ERROR sending to stackdriver: %s" % e)
-            sys.exit(errno.EACCES)
 
     if args.datadog_apikey:
         try:
