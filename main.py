@@ -44,7 +44,6 @@ def main():
 
     password = args.password
 
-    sql = sql_client.SqlClient
     try:
         sql = sql_client.SqlClient.SqlClient(args.host, args.username, password, args.database)
     except (pypyodbc.DatabaseError, pypyodbc.DataError) as e:
@@ -52,8 +51,6 @@ def main():
         print(type(e))
         print(e)
         sys.exit(errno.EACCES)
-
-    metric_value = sql.run_query(args.query)
 
     query_builder = QueryBuilder.QueryBuilder()
     queries = query_builder.check(sample_query)
@@ -71,12 +68,13 @@ def main():
         else:
             result.append({"namespace": query["namespace"].lower(), "value": result_query})
 
-    print(metric_value)
-    # print(sql.run_write("update PERSON set name = 'Axel' where id = 1"))
 
     if args.datadog_apikey:
         try:
-            datadog_metrics.submit_custom_metric(args.metric_name, metric_value, args.datadog_apikey, args.datadog_appkey)
+            for metric in result:
+                    datadog_metrics.submit_custom_metric(
+                        metric["namespace"], metric["value"],
+                        args.datadog_apikey, args.datadog_appkey)
         except Exception as e:
             print("ERROR sending to datadog: %s" % e)
             sys.exit(errno.EACCES)
