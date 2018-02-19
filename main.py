@@ -28,7 +28,6 @@ def get_arguments():
     parser.add_argument("--password", nargs="?", required=True)
     parser.add_argument("--database", nargs="?", required=True)
     parser.add_argument("--metric_name", nargs="?", required=True)
-    parser.add_argument("--stackdriver_api", nargs="?", required=False, default=None)
     parser.add_argument("--datadog_apikey", nargs="?", required=False, default=None)
     parser.add_argument("--datadog_appkey", nargs="?", required=False, default=None)
     parser.add_argument("query")
