@@ -16,7 +16,7 @@ def submit_custom_metric(metric_name, value, api_key, app_key, timestamp=int(tim
         # Submit a point with a timestamp (must be ~current)
         response = api.Metric.send(metric=metric_name, points=data_point)
         assert response['status'] == "ok"
-        print("Published.")
+        print("Published {}: {}".format(metric_name, value))
     except Exception as e:
         print('Failed to submit custom metric.')
         print(e)
