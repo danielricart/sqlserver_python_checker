@@ -50,8 +50,7 @@ def main():
     query_source = []
     if "file" in args:
         with open(args.file, encoding='utf-8') as json_file:
-            text = json_file.read()
-            query_source = json.load(text)
+            query_source = json.load(json_file)
     else:
         query_source.append(
             {

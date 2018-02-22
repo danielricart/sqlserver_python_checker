@@ -33,7 +33,8 @@ class SqlClient:
             return False
         try:
             if single_value:
-                return self.conn.cursor().execute(self.query).fetchone()[0]
+                result = self.conn.cursor().execute(self.query).fetchone()[0]
+                return result
             else:
                 result = self.conn.cursor().execute(self.query).fetchall()
                 return result
