@@ -73,11 +73,12 @@ def main():
     for query in queries:
         single_value = "select count(*) from" in query["query"].lower()
         result_query = sql.run_query(query["query"], single_value=single_value)
-
+        print(query["namespace"])
         if not single_value:
             for k, v in result_query:
+                current_namespace = (".".join([query["namespace"], k.replace(".", "_")])).lower()
                 result.append({
-                    "namespace": (".".join([query["namespace"], k.replace(".", "_")])).lower(),
+                    "namespace": current_namespace,
                     "value": v
                 })
         else:
