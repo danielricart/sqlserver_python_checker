@@ -71,9 +71,13 @@ def main():
     queries = query_builder.check(query_source)
     result = []
     for query in queries:
-        single_value = "select count(*) from" in query["query"].lower()
-        result_query = sql.run_query(query["query"], single_value=single_value)
-        print(query["namespace"])
+        try:
+            result_query = sql.run_query(query["query"])
+        except:
+            print("Error executing namespace {} - query: {} ".format(query["namespace"], query["query"]))
+            result_query = None
+
+        single_value = isinstance(result_query, int)
         if not single_value:
             for k, v in result_query:
                 current_namespace = (".".join([query["namespace"], k.replace(".", "_")])).lower()

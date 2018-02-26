@@ -26,18 +26,18 @@ class SqlClient:
                 pypyodbc.connect("DRIVER={SQL Server};Server=%s;port=%s;uid=%s;pwd=%s;database=%s;readonly=true" %
                                  (self.server, self.port, self.username, self.password, self.database), timeout=60)
 
-    def run_query(self, query, single_value = True):
+    def run_query(self, query):
         self.query = query
         r = re.compile("^select")
-        if r.match(query) is None:
+        if r.match(query.lower()) is None:
             return False
         try:
-            if single_value:
-                result = self.conn.cursor().execute(self.query).fetchone()[0]
-                return result
+            query_results = self.conn.cursor().execute(self.query).fetchall()
+
+            if isinstance(query_results[0][0], int):
+                return query_results[0][0]
             else:
-                result = self.conn.cursor().execute(self.query).fetchall()
-                return result
+                return query_results
         except pypyodbc.ProgrammingError as e:
             return "Cannot execute query. Programming error: %s" % e.value
         except Exception as e:
