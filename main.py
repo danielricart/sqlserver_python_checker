@@ -75,7 +75,7 @@ def main():
             result_query = sql.run_query(query["query"])
         except:
             print("Error executing namespace {} - query: {} ".format(query["namespace"], query["query"]))
-            result_query = None
+            result_query = []
 
         single_value = isinstance(result_query, int)
         if not single_value:
