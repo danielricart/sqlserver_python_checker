@@ -85,8 +85,10 @@ def main():
                     "namespace": current_namespace,
                     "value": v
                 })
+                print("{}: {}".format(current_namespace, v))
         else:
             result.append({"namespace": query["namespace"].lower(), "value": result_query})
+            print("{}: {}".format(query["namespace"].lower(), result_query))
 
 
     if args.datadog_apikey:
