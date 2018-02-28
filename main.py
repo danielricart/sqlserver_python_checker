@@ -77,6 +77,8 @@ def main():
             print("Error executing namespace {} - query: {} ".format(query["namespace"], query["query"]))
             result_query = []
 
+        if result_query is None:
+            result_query = 0
         single_value = isinstance(result_query, int)
         if not single_value:
             for k, v in result_query:
