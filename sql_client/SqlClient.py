@@ -4,7 +4,7 @@ import pypyodbc
 import re
 
 
-class SqlClient():
+class SqlClient:
 
     def __init__(self, server, username, password, database, port=1433, auto_connect=True):
         self.server = server
@@ -27,10 +27,17 @@ class SqlClient():
                                  (self.server, self.port, self.username, self.password, self.database), timeout=60)
 
     def run_query(self, query):
-        # TODO: make sure query is not an update/insert/create/drop
         self.query = query
+        r = re.compile("^select")
+        if r.match(query.lower()) is None:
+            return False
         try:
-            return self.conn.cursor().execute(self.query).fetchone()[0]
+            query_results = self.conn.cursor().execute(self.query).fetchall()
+
+            if isinstance(query_results[0][0], int):
+                return query_results[0][0]
+            else:
+                return query_results
         except pypyodbc.ProgrammingError as e:
             return "Cannot execute query. Programming error: %s" % e.value
         except Exception as e:

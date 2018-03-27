@@ -1,6 +1,9 @@
+import json
 import pypyodbc
 import stackdriver
 import datadog_metrics
+from query_builder import QueryBuilder
+
 __author__ = 'daniel.ricart'
 import sql_client
 import argparse
@@ -28,10 +31,11 @@ def get_arguments():
     parser.add_argument("--password", nargs="?", required=True)
     parser.add_argument("--database", nargs="?", required=True)
     parser.add_argument("--metric_name", nargs="?", required=True)
-    parser.add_argument("--stackdriver_api", nargs="?", required=False, default=None)
     parser.add_argument("--datadog_apikey", nargs="?", required=False, default=None)
     parser.add_argument("--datadog_appkey", nargs="?", required=False, default=None)
-    parser.add_argument("query")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--file', nargs="?")
+    group.add_argument("query", nargs="?")
     arguments = parser.parse_args()
 
     return arguments
@@ -43,7 +47,18 @@ def main():
 
     password = args.password
 
-    sql = sql_client.SqlClient
+    query_source = []
+    if "file" in args:
+        with open(args.file, encoding='utf-8') as json_file:
+            query_source = json.load(json_file)
+    else:
+        query_source.append(
+            {
+                "namespace": args.metric_name,
+                "query": args.query
+            }
+        )
+        
     try:
         sql = sql_client.SqlClient.SqlClient(args.host, args.username, password, args.database)
     except (pypyodbc.DatabaseError, pypyodbc.DataError) as e:
@@ -52,19 +67,38 @@ def main():
         print(e)
         sys.exit(errno.EACCES)
 
-    metric_value = sql.run_query(args.query)
-    print(metric_value)
-    # print(sql.run_write("update PERSON set name = 'Axel' where id = 1"))
-    if args.stackdriver_api:
+    query_builder = QueryBuilder.QueryBuilder()
+    queries = query_builder.check(query_source)
+    result = []
+    for query in queries:
         try:
-            stackdriver.submit_custom_metric(args.metric_name, metric_value, args.stackdriver_api)
-        except Exception as e:
-            print("ERROR sending to stackdriver: %s" % e)
-            sys.exit(errno.EACCES)
+            result_query = sql.run_query(query["query"])
+        except:
+            print("Error executing namespace {} - query: {} ".format(query["namespace"], query["query"]))
+            result_query = []
+
+        if result_query is None:
+            result_query = 0
+        single_value = isinstance(result_query, int)
+        if not single_value:
+            for k, v in result_query:
+                current_namespace = (".".join([query["namespace"], k.replace(".", "_")])).lower()
+                result.append({
+                    "namespace": current_namespace,
+                    "value": v
+                })
+                print("{}: {}".format(current_namespace, v))
+        else:
+            result.append({"namespace": query["namespace"].lower(), "value": result_query})
+            print("{}: {}".format(query["namespace"].lower(), result_query))
+
 
     if args.datadog_apikey:
         try:
-            datadog_metrics.submit_custom_metric(args.metric_name, metric_value, args.datadog_apikey, args.datadog_appkey)
+            for metric in result:
+                    datadog_metrics.submit_custom_metric(
+                        metric["namespace"], metric["value"],
+                        args.datadog_apikey, args.datadog_appkey)
         except Exception as e:
             print("ERROR sending to datadog: %s" % e)
             sys.exit(errno.EACCES)
