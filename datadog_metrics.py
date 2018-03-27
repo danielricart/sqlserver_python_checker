@@ -1,5 +1,6 @@
-from datadog import initialize, api
+import argparse
 import time
+from datadog import initialize, api
 
 
 def submit_custom_metric(metric_name, value, api_key, app_key, timestamp=int(time.time())):
@@ -22,10 +23,21 @@ def submit_custom_metric(metric_name, value, api_key, app_key, timestamp=int(tim
         print(e)
 
 
+def argparser():
+    parser = argparse.ArgumentParser(description="Send metrics to datadog")
+    parser.add_argument("--metric_name", nargs="?", required=True)
+    parser.add_argument("--metric_value", nargs="?", required=True)
+    parser.add_argument("--datadog_apikey", nargs="?", required=False, default=None)
+    parser.add_argument("--datadog_appkey", nargs="?", required=False, default=None)
+    arguments = parser.parse_args()
+    return arguments
+
+
 if __name__ == '__main__':
+    args = argparser()
     submit_custom_metric(
-        metric_name="middleware.tests.metrics",
-        value=66,
-        api_key="API_KEY",
-        app_key="APP_KEY"
+        metric_name=args.metric_name,
+        value=args.metric_value,
+        api_key=args.datadog_apikey,
+        app_key=args.datadog_appkey
     )
