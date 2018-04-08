@@ -37,6 +37,12 @@ class TestQueryBuilder(TestCase):
             "namespace": "my.level1.level2.level3",
             "query": "select id as [name], count(*) from mydb.dbo.myTable1 table1 left join mydb.dbo.myTable2 table2 on table1.id = table2.id  where ModifiedDate < GETDATE()-5 group by table2.source",
         }
+    query_formatted_namespace = {
+            "namespace": "my.level1.level2.{}.level3",
+            "query": "select count(*) from mydb.dbo.myTable where ModifiedDate < GETDATE()-5 and source = {}",
+            "parameters": {
+                "source1": "15"}
+        }
     empty_query = {}
     empty_query_list = [{}]
 
@@ -121,4 +127,14 @@ class TestQueryBuilder(TestCase):
         check = QueryBuilder()
         result = check.check(self.query_array)
         print(result)
+        self.assertListEqual(result, expected)
+
+    def test_query_with_formatted_namespace(self):
+        expected = [
+            {
+                'namespace': 'my.level1.level2.source1.level3',
+                'query': 'select count(*) from mydb.dbo.myTable where ModifiedDate < GETDATE()-5 and source = 15'
+            }]
+        check = QueryBuilder()
+        result = check.check(self.query_formatted_namespace)
         self.assertListEqual(result, expected)
