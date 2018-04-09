@@ -39,6 +39,10 @@ class TestQueryBuilder(TestCase):
         }
     empty_query = {}
     empty_query_list = [{}]
+    query_multilevel = {
+        "namespace": "my.level1",
+        "query": "select id as [level2], name as [level3], count(*) from mydb.dbo.myTable1 table1 left join mydb.dbo.myTable2 table2 on table1.id = table2.id  where ModifiedDate < GETDATE()-5 group by table2.source"
+    }
 
     def setup(self):
         print("SETUP!")

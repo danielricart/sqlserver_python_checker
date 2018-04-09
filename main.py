@@ -81,8 +81,18 @@ def main():
             result_query = 0
         single_value = isinstance(result_query, int)
         if not single_value:
-            for k, v in result_query:
-                current_namespace = (".".join([query["namespace"], k.replace(".", "_")])).lower()
+            global_namespace = query["namespace"]
+            for row in result_query:
+                local_namespace = ""
+                v = None
+                cols = []
+                for col in row:
+                    if isinstance(col, str):
+                        cols.append(col)
+                    else:
+                        v = col
+                local_namespace = ".".join(cols)
+                current_namespace = ".".join([global_namespace, local_namespace]).lower()
                 result.append({
                     "namespace": current_namespace,
                     "value": v
