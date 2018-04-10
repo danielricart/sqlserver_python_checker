@@ -8,6 +8,7 @@ def submit_custom_metric(metric_name, value, api_key, app_key, timestamp=int(tim
         'api_key': api_key,
         'app_key': app_key
     }
+    parsed_metric_name = metric_name.replace("-", "_").replace(" ", "_")
 
     data_point = (timestamp, value)
     initialize(**options)
@@ -15,9 +16,9 @@ def submit_custom_metric(metric_name, value, api_key, app_key, timestamp=int(tim
     now = time.time()
     try:
         # Submit a point with a timestamp (must be ~current)
-        response = api.Metric.send(metric=metric_name, points=data_point)
+        response = api.Metric.send(metric=parsed_metric_name, points=data_point)
         assert response['status'] == "ok"
-        print("Published {}: {}".format(metric_name, value))
+        print("Published {}: {}".format(parsed_metric_name, value))
     except Exception as e:
         print('Failed to submit custom metric.')
         print(e)
