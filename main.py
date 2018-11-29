@@ -109,7 +109,7 @@ def main():
                 tags = []  # string list of tags
                 v = row['value']
 
-                for tag_key, tag_value in row:
+                for tag_key, tag_value in row.items():
                     if tag_key != "value":
                         a = ""
                         a.replace(" ", "")
