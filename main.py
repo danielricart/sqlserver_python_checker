@@ -127,7 +127,7 @@ def main():
                         metric["namespace"], metric["value"],
                         args.datadog_apikey, args.datadog_appkey,
                         timestamp=int(time.time()),
-                        tags=metric["tags"], metric_type=metric["type"])
+                        tags=metric["tags"])
         except Exception as e:
             print("ERROR sending to datadog: %s" % e)
             sys.exit(errno.EACCES)
