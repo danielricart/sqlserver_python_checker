@@ -85,7 +85,7 @@ def main():
             result.append({"namespace": query["namespace"].lower(), "value": result_query})
             print("{}: {}".format(query["namespace"].lower(), result_query))
 
-        elif not single_value and len(query[0]) == 2:  # multinamespace has only 2 columns always.
+        elif not single_value and len(query) == 2:  # multinamespace has only 2 columns always.
             global_namespace = query["namespace"]
             for row in result_query:
                 local_namespace = ""
@@ -104,7 +104,7 @@ def main():
                 })
                 print("{}: {}".format(current_namespace, v))
 
-        elif len(query[0]) > 2:  # tagged format has a column per tag. Above case is a simple case of these one. MERGE!
+        elif len(query) > 2:  # tagged format has a column per tag. Above case is a simple case of these one. MERGE!
             for row in result_query:
                 tags = []  # string list of tags
                 v = row['value']
