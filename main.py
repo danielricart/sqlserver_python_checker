@@ -1,4 +1,5 @@
 import json
+import time
 import pypyodbc
 import stackdriver
 import datadog_metrics
@@ -123,7 +124,9 @@ def main():
             for metric in result:
                     datadog_metrics.submit_custom_metric(
                         metric["namespace"], metric["value"],
-                        args.datadog_apikey, args.datadog_appkey)
+                        args.datadog_apikey, args.datadog_appkey,
+                        timestamp=int(time.time()),
+                        tags=metric["tags"], metric_type=metric["type"])
         except Exception as e:
             print("ERROR sending to datadog: %s" % e)
             sys.exit(errno.EACCES)

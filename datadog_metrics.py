@@ -3,7 +3,7 @@ import time
 from datadog import initialize, api
 
 
-def submit_custom_metric(metric_name, value, api_key, app_key, timestamp=int(time.time()), tags=None, type=None):
+def submit_custom_metric(metric_name, value, api_key, app_key, timestamp=int(time.time()), tags=None, metric_type=None):
     options = {
         'api_key': api_key,
         'app_key': app_key
@@ -16,9 +16,10 @@ def submit_custom_metric(metric_name, value, api_key, app_key, timestamp=int(tim
     now = time.time()
     try:
         # Submit a point with a timestamp (must be ~current)
-        response = api.Metric.send(metric=parsed_metric_name, points=data_point, tags=tags, type=None)
+        response = api.Metric.send(metric=parsed_metric_name, points=data_point, tags=tags, type=metric_type)
         assert response['status'] == "ok"
-        print("Published {}: {}".format(parsed_metric_name, value))
+        tag_string = "<NO TAGS ADDED>" if tags is None else ";".join(tags)
+        print("Published {}: {} : {}".format(parsed_metric_name, value, tag_string))
     except Exception as e:
         print('Failed to submit custom metric.')
         print(e)
