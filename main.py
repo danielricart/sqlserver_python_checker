@@ -58,7 +58,7 @@ def main():
                 "query": args.query
             }
         )
-        
+
     try:
         sql = sql_client.SqlClient.SqlClient(args.host, args.username, password, args.database)
     except (pypyodbc.DatabaseError, pypyodbc.DataError) as e:
@@ -80,7 +80,11 @@ def main():
         if result_query is None:
             result_query = 0
         single_value = isinstance(result_query, int)
-        if not single_value:
+        if single_value:
+            result.append({"namespace": query["namespace"].lower(), "value": result_query})
+            print("{}: {}".format(query["namespace"].lower(), result_query))
+
+        elif not single_value and "metric_type" not in query:
             global_namespace = query["namespace"]
             for row in result_query:
                 local_namespace = ""
@@ -98,10 +102,21 @@ def main():
                     "value": v
                 })
                 print("{}: {}".format(current_namespace, v))
-        else:
-            result.append({"namespace": query["namespace"].lower(), "value": result_query})
-            print("{}: {}".format(query["namespace"].lower(), result_query))
 
+        elif "metric_type" in query:
+            for row in result_query:
+                tags = []  # string list of tags
+                v = row['value']
+
+                for tag_key, tag_value in row:
+                    if tag_key != "value":
+                        tags.append("{}:{}".format(tag_key, tag_value))
+
+                result.append({"namespace": query["namespace"].lower(),
+                               "value": v,
+                               "tags": tags,
+                               "type": query["metric_type"]}
+                              )
 
     if args.datadog_apikey:
         try:
