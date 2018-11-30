@@ -36,7 +36,7 @@ class SqlClient:
             execution = cursor.execute(self.query)
             query_results = execution.fetchall()
             columns = [column[0] for column in cursor.description]
-            if isinstance(query_results[0][0], int):
+            if len(query_results) > 0 and isinstance(query_results[0][0], int):
                 return query_results[0][0], columns
             else:
                 return query_results, columns
