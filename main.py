@@ -108,11 +108,12 @@ def main():
                 print("{}: {}".format(current_namespace, v))
 
         elif len(result_query[0]) > 2:  # tagged format has a column per tag. Above case is a simple case of these one. MERGE!
-            for row in result_query:
-                tags = []  # string list of tags
-                v = row['value']
+            for row in result_query:  # row contain the data row. not a dict.
+                data = dict(zip(columns, row))
 
-                for tag_key, tag_value in row.items():
+                tags = []  # string list of tags
+                v = data['value']
+                for tag_key, tag_value in data.items():
                     if tag_key != "value":
                         a = ""
                         a.replace(" ", "")
