@@ -71,10 +71,13 @@ def main():
     query_builder = QueryBuilder.QueryBuilder()
     queries = query_builder.check(query_source)
     result = []
+    columns = None
     for query in queries:
         try:
-            result_query = sql.run_query(query["query"])
-        except:
+            result_query, columns = sql.run_query(query["query"])
+
+        except Exception as e:
+            print(e)
             print("Error executing namespace {} - query: {} ".format(query["namespace"], query["query"]))
             result_query = []
 
