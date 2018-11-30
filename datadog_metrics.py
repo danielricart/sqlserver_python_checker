@@ -16,6 +16,8 @@ def submit_custom_metric(metric_name, value, api_key, app_key, timestamp=int(tim
     try:
         # Submit a point with a timestamp (must be ~current)
         if tags:
+            for i in range(0, len(tags)):
+                tags[i] = tags[i].replace("-", "_").replace(" ", "_").lower()
             response = api.Metric.send(metric=parsed_metric_name, points=data_point, tags=tags)
         else:
             response = api.Metric.send(metric=parsed_metric_name, points=data_point)
