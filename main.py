@@ -88,7 +88,7 @@ def main():
             result.append({"namespace": query["namespace"].lower(), "value": result_query})
             print("{}: {}".format(query["namespace"].lower(), result_query))
 
-        elif not single_value and ('format' not in query or query['format'] != 'tags'):
+        elif not single_value and ('format' not in query or query['format'] == 'namespace'):
             # original query format does not contain "format" field.
             global_namespace = query["namespace"]
             for row in result_query:
@@ -104,7 +104,8 @@ def main():
                 current_namespace = ".".join([global_namespace, local_namespace]).lower()
                 result.append({
                     "namespace": current_namespace,
-                    "value": v
+                    "value": v,
+                    "tags": None
                 })
                 print("{}: {}".format(current_namespace, v))
 
@@ -133,7 +134,7 @@ def main():
                         metric["namespace"], metric["value"],
                         args.datadog_apikey, args.datadog_appkey,
                         timestamp=int(time.time()),
-                        tags=metric["tags"])
+                        tags=metric["tags"] if "tags" in metric else None)
         except Exception as e:
             print("ERROR sending to datadog: %s" % e)
             sys.exit(errno.EACCES)
