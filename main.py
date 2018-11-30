@@ -109,7 +109,7 @@ def main():
                 })
                 print("{}: {}".format(current_namespace, v))
 
-        elif 'format' in query and query['format'] != 'tags':
+        elif 'format' in query and query['format'] == 'tags':
             # tagged format has specific field "format" in query document to select it
             for row in result_query:  # row contain the data row. not a dict.
                 data = dict(zip(columns, row))
