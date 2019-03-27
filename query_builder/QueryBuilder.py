@@ -28,7 +28,7 @@ class QueryBuilder:
                     query_format = "namespace"
                     if "format" in query:
                         query_format = query["format"]
-                    results.append({"namespace": current_namespace, "query": current_query, "format": query["format"]})
+                    results.append({"namespace": current_namespace, "query": current_query, "format": query_format})
             else:
                 query_format = "namespace"
                 if "format" in query:
