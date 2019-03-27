@@ -32,12 +32,14 @@ class SqlClient:
         if r.match(query.lower()) is None:
             return False
         try:
-            query_results = self.conn.cursor().execute(self.query).fetchall()
-
-            if isinstance(query_results[0][0], int):
-                return query_results[0][0]
+            cursor = self.conn.cursor()
+            execution = cursor.execute(self.query)
+            query_results = execution.fetchall()
+            columns = [column[0] for column in cursor.description]
+            if len(query_results) > 0 and isinstance(query_results[0][0], int):
+                return query_results[0][0], columns
             else:
-                return query_results
+                return query_results, columns
         except pypyodbc.ProgrammingError as e:
             return "Cannot execute query. Programming error: %s" % e.value
         except Exception as e:

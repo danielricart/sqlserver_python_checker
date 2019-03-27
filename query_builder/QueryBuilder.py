@@ -22,10 +22,10 @@ class QueryBuilder:
                 for param_name, parameter in query["parameters"].items():
                     current_query = query["query"].format(parameter)
                     current_namespace = query["namespace"].format(param_name)
-                    if current_namespace ==  query["namespace"]:
+                    if current_namespace == query["namespace"]:
                         current_namespace = ".".join([query["namespace"], param_name])
                     # print("{0} {1}".format(current_namespace, current_query))
-                    results.append({"namespace": current_namespace, "query": current_query})
+                    results.append({"namespace": current_namespace, "query": current_query, "format": query["format"]})
             else:
-                results.append({"namespace": query["namespace"], "query": query["query"]})
+                results.append({"namespace": query["namespace"], "query": query["query"], "format": query["format"]})
         return results

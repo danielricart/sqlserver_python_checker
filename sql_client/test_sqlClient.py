@@ -36,7 +36,7 @@ class TestSqlClient(TestCase):
 
     def test_run_query(self):
         sql = sql_client.SqlClient.SqlClient(self.sql_host, self.sql_user, self.sql_password, self.sql_database, auto_connect=True)
-        res = sql.run_query("select count(*) from PERSON")
+        res, col = sql.run_query("select count(*) from PERSON")
         self.assertEquals(res, 9)
 
     def test_run_write_insufficient_permissions(self):
